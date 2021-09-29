@@ -1,0 +1,64 @@
+From 1f8431ffae755af5b2e00d12d754b0b31b98789d Mon Sep 17 00:00:00 2001
+From: Josh Holmer <jholmer.in@gmail.com>
+Date: Fri, 6 Aug 2021 16:56:56 -0400
+Subject: [PATCH] Allow -f/--frame CLI arg to seek to frame on load
+
+---
+ vspreview/core/abstracts.py | 2 +-
+ vspreview/main.py           | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/vspreview/core/abstracts.py b/vspreview/core/abstracts.py
+index 22d6183..4aa260b 100644
+--- a/vspreview/core/abstracts.py
++++ b/vspreview/core/abstracts.py
+@@ -24,7 +24,7 @@ class AbstractMainWindow(Qt.QMainWindow, QAbstractYAMLObjectSingleton):
+     __slots__ = ()
+ 
+     @abstractmethod
+-    def load_script(self, script_path: Path, external_args: str = '', reloading = False) -> None:
++    def load_script(self, script_path: Path, external_args: str = '', reloading = False, start_frame: int = 0) -> None:
+         raise NotImplementedError
+ 
+     @abstractmethod
+diff --git a/vspreview/main.py b/vspreview/main.py
+index e0ba3dc..14edab0 100644
+--- a/vspreview/main.py
++++ b/vspreview/main.py
+@@ -484,7 +484,7 @@ class MainWindow(AbstractMainWindow):
+             + ' QGraphicsView { border: 0px; padding: 0px; }' \
+             + ' QToolButton { padding: 0px; }'
+ 
+-    def load_script(self, script_path: Path, external_args: str = '', reloading = False) -> None:
++    def load_script(self, script_path: Path, external_args: str = '', reloading = False, start_frame: int = 0) -> None:
+         import shlex
+         from traceback import FrameSummary, TracebackException
+ 
+@@ -548,6 +548,7 @@ class MainWindow(AbstractMainWindow):
+             for toolbar in self.toolbars:
+                 toolbar.on_script_loaded()
+             self.switch_output(self.OUTPUT_INDEX)
++            self.switch_frame(Frame(start_frame))
+ 
+             self.load_storage()
+         else:
+@@ -827,6 +828,7 @@ def main() -> None:
+                         type=Path, nargs='?')
+     parser.add_argument('-a', '--external-args', type=str,
+                         help='Arguments that will be passed to scripts')
++    parser.add_argument('-f', '--frame', type=int, help='Frame to load initially (defaults to 0)')
+     args = parser.parse_args()
+ 
+     if args.script_path is None:
+@@ -841,7 +843,7 @@ def main() -> None:
+     os.chdir(script_path.parent)
+     app = Qt.QApplication(sys.argv)
+     main_window = MainWindow()
+-    main_window.load_script(script_path, external_args=args.external_args)
++    main_window.load_script(script_path, external_args=args.external_args, start_frame=args.frame or 0)
+     main_window.show()
+ 
+     try:
+-- 
+2.33.0
+
