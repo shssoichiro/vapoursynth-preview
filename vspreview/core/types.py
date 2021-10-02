@@ -685,7 +685,7 @@ class Output(YAMLObject):
         "cur_frame" # hack to keep the reference to the current frame
     )
 
-    def __init__(self, vs_output: Union[vs.VideoNode, vs.AlphaOutputTuple], index: int) -> None:
+    def __init__(self, vs_output: Union[vs.VideoNode, vs.VideoOutputTuple], index: int) -> None:
         from vspreview.models  import SceningLists
         from vspreview.utils   import main_window
         from vspreview.widgets import GraphicsImageItem
@@ -694,16 +694,17 @@ class Output(YAMLObject):
 
         # runtime attributes
 
-        if isinstance(vs_output, vs.AlphaOutputTuple):
-            self.has_alpha = True
+        self.has_alpha = False
+        if isinstance(vs_output, vs.VideoOutputTuple):
             self.source_vs_output = vs_output.clip
-            self.source_vs_alpha  = vs_output.alpha
 
-            self.vs_alpha = self.prepare_vs_output(self.source_vs_alpha,
-                                                   alpha=True)
-            self.format_alpha = self.source_vs_alpha.format
+            if vs_output.alpha is not None:
+                self.has_alpha = True
+                self.source_vs_alpha = vs_output.alpha
+
+                self.vs_alpha = self.prepare_vs_output(self.source_vs_alpha, alpha=True)
+                self.format_alpha = self.source_vs_alpha.format
         else:
-            self.has_alpha = False
             self.source_vs_output = vs_output
 
         self.index        = index
