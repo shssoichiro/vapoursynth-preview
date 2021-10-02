@@ -486,7 +486,7 @@ class MainWindow(AbstractMainWindow):
             + ' QGraphicsView { border: 0px; padding: 0px; }' \
             + ' QToolButton { padding: 0px; }'
 
-    def load_script(self, script_path: Path, external_args: str = '', reloading: bool = False) -> None:
+    def load_script(self, script_path: Path, external_args: str = '', reloading: bool = False, start_frame: int = 0) -> None:
         import shlex
         from traceback import FrameSummary, TracebackException
 
@@ -550,6 +550,7 @@ class MainWindow(AbstractMainWindow):
             for toolbar in self.toolbars:
                 toolbar.on_script_loaded()
             self.switch_output(self.OUTPUT_INDEX)
+            self.switch_frame(Frame(start_frame))
 
             self.load_storage()
         else:
@@ -872,6 +873,7 @@ def main() -> None:
                         type=Path, nargs='?')
     parser.add_argument('-a', '--external-args', type=str,
                         help='Arguments that will be passed to scripts')
+    parser.add_argument('-f', '--frame', type=int, help='Frame to load initially (defaults to 0)')
     args = parser.parse_args()
 
     if args.script_path is None:
@@ -886,7 +888,7 @@ def main() -> None:
     os.chdir(script_path.parent)
     app = Qt.QApplication(sys.argv)
     main_window = MainWindow()
-    main_window.load_script(script_path, external_args=args.external_args)
+    main_window.load_script(script_path, external_args=args.external_args, start_frame=args.frame or 0)
     main_window.show()
 
     try:
