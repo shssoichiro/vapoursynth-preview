@@ -318,7 +318,7 @@ class MainWindow(AbstractMainWindow):
     CHECKERBOARD_TILE_COLOR_1 = Qt.Qt.white
     CHECKERBOARD_TILE_COLOR_2 = Qt.Qt.lightGray
     CHECKERBOARD_TILE_SIZE    =     8  # px
-    DARK_THEME                =  True
+    DARK_THEME                = False
     FPS_AVERAGING_WINDOW_SIZE = FrameInterval(100)
     FPS_REFRESH_INTERVAL      =   150  # ms
     LOG_LEVEL         = logging.DEBUG
